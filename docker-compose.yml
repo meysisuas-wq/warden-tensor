@@ -1,0 +1,47 @@
+version: '3.9'
+services:
+  api:
+    build: .
+    container_name: warden-tensor-api
+    ports: ["8002:8002"]
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://warden:warden@postgres:5432/wardentensor
+      REDIS_URL: redis://redis:6379/2
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    volumes:
+      - ./src:/app/src
+      - video_data:/app/data/videos
+      - image_data:/app/data/images
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: warden-tensor-db
+    environment: {POSTGRES_DB: wardentensor, POSTGRES_USER: warden, POSTGRES_PASSWORD: warden}
+    ports: ["5434:5432"]
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U warden -d wardentensor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: warden-tensor-cache
+    ports: ["6381:6379"]
+    volumes: [redis_data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  video_data:
+  image_data:
