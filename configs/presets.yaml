@@ -1,0 +1,22 @@
+presets:
+  high_security:
+    detection:
+      confidence_threshold: 0.55
+      enabled_models: ["object", "face", "plate", "motion"]
+    alerts:
+      cooldown_seconds: 15
+      auto_escalate: true
+
+  commercial:
+    detection:
+      confidence_threshold: 0.65
+      enabled_models: ["object", "face", "motion"]
+    alerts:
+      cooldown_seconds: 30
+
+  residential:
+    detection:
+      confidence_threshold: 0.70
+      enabled_models: ["object", "motion"]
+    alerts:
+      cooldown_seconds: 60
